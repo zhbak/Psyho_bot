@@ -3,3 +3,4 @@
 venv/
 old/
 __pycache__/
+test_bot.py
