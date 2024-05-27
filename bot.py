@@ -1,7 +1,10 @@
 import time, asyncio
 from bot_infrastucture import handlers, config
 from database import orm
+import logging
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Состояния:
 # start - 0
