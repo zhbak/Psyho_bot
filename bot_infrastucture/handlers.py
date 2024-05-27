@@ -18,7 +18,7 @@ def start_message(bot):
         # Записывает нового пользователя
         # Проверят старого
         # Выводит сообщение c кнопками перехода к psy_chat и оплаты
-        await bot.send_message(chat_id, text= await texts.start_text_statistic(message), parse_mode="HTML", reply_markup= buttons.start_buttons())
+        await bot.send_message(chat_id, text = await texts.start_text_statistic(message), parse_mode="HTML", reply_markup= buttons.start_buttons())
 
         # Запись состояния в redis
         await orm.execute_redis_command(database.pool, "hset", "status", chat_id, 0)
@@ -30,10 +30,10 @@ def start_button_handler(bot):
     async def query_handler(call):
         chat_id = call.message.chat.id
         if call.data == 'pushed_start_psychat_btn':
-            user_state = await orm.execute_redis_command(database.pool, "hget", "status", call.message.chat.id)
+            user_state = await orm.execute_redis_command(database.pool, "hget", "status", call.message.chat.id) 
             user_info = await orm.user_check(call.message.chat.id, call.message.date)
             if user_state == "1":
-                await orm.change_user_session_count(user_info) # Уменьшение количества сессий если клиент до этого был в psy_chat
+                await orm.change_user_session_count(user_info, call.message.date) # Уменьшение количества сессий если клиент до этого был в psy_chat
             await orm.execute_redis_command(database.pool, "hset", "status", call.message.chat.id, 1) # Запись состояния 
             if await orm.execute_redis_command(database.pool, "exists", f"message_store:{chat_id}"):  # Проверка есть ли в Redis история с предыдущих сессий. Если да, удаляем.
                 await orm.execute_redis_command(database.pool, "delete", f"message_store:{chat_id}")

@@ -4,7 +4,7 @@ async def start_text_statistic(message):
     user_state = await orm.execute_redis_command(database.pool, "hget", "status", message.chat.id)
     user_info = await orm.user_check(message.chat.id, message.date)
     if user_state == "1":
-        await orm.change_user_session_count(user_info)
+        await orm.change_user_session_count(user_info, message.date)
     start_text = f"{message.chat.first_name}, добро пожаловать!\n\n\
 Тебе доступны 3 бесплатные сессии на 30 дней с этого момента.\n\n\
 🔸️После 30 дней количество сессий автоматически восстановится.\n\
@@ -18,8 +18,8 @@ async def start_text_statistic(message):
     return start_text
     
     
-start_psy_chat_text = "🔸У тебя будет возможность написать 6 сообщений.\n\
-🔸Для возврата к главному меню нажми ☰ или Menu > Главное меню\n\n\
+start_psy_chat_text = "🔸У тебя будет возможность написать 6 сообщений в рамках одной сессии.\n\
+🔸Для возврата к главному меню нажми Menu > Главное меню\n\n\
 Сессия начинается!"
 
 pause_phrases = (

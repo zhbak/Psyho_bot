@@ -90,12 +90,17 @@ async def change_user_period(user_info, current_unix_time: int):
     
 
 #count chinging
-async def change_user_session_count(user_info):
+async def change_user_session_count(user_info, current_unix_time: int):
     async with async_session_factory() as session:
         if user_info.remaining_sessions_count > 0:
             user_info.remaining_sessions_count = user_info.remaining_sessions_count - 1
             session.add(user_info)
             await session.commit()
+        
+        if current_unix_time > user_info.unix_time_end:
+            user_info.remaining_days = 30
+            user_info.unix_time_end = current_unix_time + 2592000 # + 30 days
+            user_info.remaining_sessions_count = 4
             
         return user_info
 

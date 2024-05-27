@@ -1,0 +1,37 @@
+version: "3.9"
+services:
+  redis:
+    image: redis/redis-stack-server:latest
+    container_name: redis
+    expose:
+      - "6379"
+    entrypoint: >
+      redis-server
+        --save 3600 1 
+        --loglevel verbose
+#        --requirepass ${REDIS_PASSWORD}  
+#        --loadmodule /opt/redis-stack/lib/redisearch.so
+    env_file:
+      - stack.env
+
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  database:
+    image: postgres:15
+    container_name: postgresdb
+    expose:
+      - "5432"
+    env_file:
+      - stack.env
+
+  bot:
+    build: 
+      context: .
+    env_file:
+      - stack.env
+    container_name: psyhobot
+    depends_on:
+      - database
