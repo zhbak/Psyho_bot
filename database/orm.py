@@ -13,7 +13,7 @@ async def execute_redis_command(redis_pool, command: str, *args, **kwargs):
         args: Позиционные аргументы для команды.
         kwargs: Именованные аргументы для команды.
     """
-    async with Redis.from_pool(connection_pool=redis_pool) as redis:
+    async with Redis(connection_pool=redis_pool) as redis:
         try:
             # Динамически вызываем метод из объекта Redis
             method = getattr(redis, command)

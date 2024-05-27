@@ -4,6 +4,7 @@ from langchain.memory import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory, RunnablePassthrough
 from langchain_community.chat_message_histories import RedisChatMessageHistory
 from dotenv import load_dotenv
+from database.database import redis_url
 from database.orm import execute_redis_command
 import redis.asyncio as redis
 import os
@@ -55,8 +56,11 @@ def summarize_messages(chain_input):
 
     return True
 
+def get_message_history(session_id: str) -> RedisChatMessageHistory:
+    return RedisChatMessageHistory(session_id, url=redis_url)
+
 # Главная функция
-async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat_history, chat):
+async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat):
     
     # Выполняем асинхронный запрос HGET
     task = await execute_redis_command(redis_pool, "hget", "tasks", chat_id)
@@ -76,7 +80,7 @@ async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat_histor
 
     chain_with_message_history = RunnableWithMessageHistory(
             chain,
-            lambda session_id: chat_history,
+            get_message_history,
             input_messages_key="input",
             history_messages_key="chat_history"
         )
