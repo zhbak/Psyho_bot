@@ -44,8 +44,9 @@ def start_button_handler(bot):
                 await bot.send_message(chat_id, text="ок1", parse_mode="HTML")
                 chat_history = RedisChatMessageHistory(session_id=f"{chat_id}", url=f"{database.redis_url}")
                 await bot.send_message(chat_id, text="ок2", parse_mode="HTML")
-                user_input = f"Привет! Поприветствуй меня на русском 👋"
-                response = await psy_chat.psyho_chat(prompts.system_prompt, user_input, database.pool, chat_id, chat_history, config.chat) # Ответ psychat на первый user_input
+                user_input = f"Привет! Меня зовут {call.message.chat.first_name}. Поприветствуй меня на русском 👋"
+                await bot.send_message(chat_id, text="ок2.5", parse_mode="HTML")
+                response = await psy_chat.psyho_chat(prompts.system_prompt, str(user_input), database.pool, chat_id, chat_history, config.chat) # Ответ psychat на первый user_input
                 await bot.send_message(chat_id, text="ок3", parse_mode="HTML")
                 await psy_chat.dynamic_task_change(chat_id, database.pool, prompts.tasks, response.content)
                 await bot.send_message(chat_id, text="ок4", parse_mode="HTML")
