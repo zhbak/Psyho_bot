@@ -1,4 +1,4 @@
-import time, asyncio
+import asyncio
 from bot_infrastucture import handlers, config
 from database import orm
 import logging
