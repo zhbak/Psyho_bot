@@ -20,6 +20,17 @@ async def main():
     await config.bot.polling()
 
 if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    print('Bot started.')
+    while True:
+        try:
+            loop.run_until_complete(main())
+        except Exception as e:
+            print(f"Exception occurred: {e}")
+            time.sleep(1)
+
+"""
+if __name__ == "__main__":
     print('Bot started.')
     while True:
         try:
@@ -27,3 +38,4 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Exception occurred: {e}")
             time.sleep(1)  # Пауза перед следующей попыткой
+"""
