@@ -19,15 +19,14 @@ async def main():
     await orm.create_tables()
     await config.bot.polling()
 
+
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
     print('Bot started.')
-    while True:
-        try:
-            loop.run_until_complete(main())
-        except Exception as e:
-            print(f"Exception occurred: {e}")
-            time.sleep(1)
+    try:
+        asyncio.run(main())
+    except Exception as e:
+        print(f"Exception occurred: {e}")
+
 
 """
 if __name__ == "__main__":
