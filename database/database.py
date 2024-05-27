@@ -1,9 +1,6 @@
-import asyncio
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy import URL, create_engine, text
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from database.config import settings, redis_port, redis_host
-from redis.asyncio import ConnectionPool, Redis
+from redis.asyncio import ConnectionPool
 
 
 

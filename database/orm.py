@@ -1,8 +1,7 @@
 from redis.asyncio import Redis
 from database.database import async_engine, async_session_factory
 from database.models import PsyUsersTable, Base
-from datetime import datetime
-import asyncio
+
 
 #_______redis_________
 

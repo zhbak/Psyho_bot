@@ -1,7 +1,5 @@
-from sqlalchemy import Table, Column, Integer, DateTime, String, MetaData
-from sqlalchemy import create_engine, Column, Integer, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Mapped, mapped_column ,sessionmaker
+from sqlalchemy.orm import Mapped, mapped_column
 
 Base = declarative_base()
 
