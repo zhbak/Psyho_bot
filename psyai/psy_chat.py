@@ -65,7 +65,7 @@ async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat_histor
         [
             (
                 "system",
-                f"{system_prompt}" + task,
+                f"{system_prompt}" + str(task),
             ),
             MessagesPlaceholder(variable_name="chat_history"),
             ("human", "{input}"),
