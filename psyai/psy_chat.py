@@ -60,10 +60,7 @@ def get_message_history(session_id: str) -> RedisChatMessageHistory:
     return RedisChatMessageHistory(session_id, url=redis_url)
 
 # Главная функция
-async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat):
-    
-    # Выполняем асинхронный запрос HGET
-    task = await execute_redis_command(redis_pool, "hget", "tasks", chat_id)
+async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat, task):
 
     prompt = ChatPromptTemplate.from_messages(
         [
