@@ -81,13 +81,10 @@ async def psyho_chat(system_prompt, user_input, pool, chat_id, chat):
 
     chain = prompt | chat
 
-    async def async_get_message_history(session_id: str):
-        history = await get_message_history(session_id, pool)
-        return await history.get_messages()
 
     chain_with_message_history = RunnableWithMessageHistory(
             chain,
-            await async_get_message_history,
+            lambda session_id: get_message_history(session_id, pool),
             input_messages_key="input",
             history_messages_key="chat_history"
         )
