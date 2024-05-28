@@ -3,6 +3,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory, RunnablePassthrough
 #from langchain_community.chat_message_histories.redis import RedisChatMessageHistory
+from langchain_core.chat_history import BaseChatMessageHistory
 from psyai.redis_chat import RedisChatMessageHistory
 from dotenv import load_dotenv
 from database.database import redis_url
@@ -60,11 +61,11 @@ def summarize_messages(chain_input):
 
     return True
 
-def get_message_history(session_id: str, pool: ConnectionPool) -> RedisChatMessageHistory:
-    return RedisChatMessageHistory(session_id, pool)
+def get_message_history(session_id: str, url: str) -> BaseChatMessageHistory:
+    return RedisChatMessageHistory(session_id, url)
 
 # Главная функция
-async def psyho_chat(system_prompt, user_input, pool, chat_id, chat):
+async def psyho_chat(system_prompt, user_input, pool, chat_id, chat, redis_url):
     # Выполняем асинхронный запрос HGET
     task = await execute_redis_command(pool, "hget", "tasks", chat_id)
 
@@ -84,7 +85,7 @@ async def psyho_chat(system_prompt, user_input, pool, chat_id, chat):
 
     chain_with_message_history = RunnableWithMessageHistory(
             chain,
-            lambda session_id: get_message_history(session_id, pool),
+            lambda session_id: get_message_history(session_id, redis_url),
             input_messages_key="input",
             history_messages_key="chat_history"
         )
@@ -101,7 +102,7 @@ async def psyho_chat(system_prompt, user_input, pool, chat_id, chat):
 
     return response
 
-pool = ConnectionPool(host=redis_host, port=redis_port, decode_responses=True)
+#ool = ConnectionPool(host=redis_host, port=redis_port, decode_responses=True)
 
 if __name__ == '__main__':
     
