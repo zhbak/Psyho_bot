@@ -2,12 +2,71 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory, RunnablePassthrough
-from langchain_community.chat_message_histories import RedisChatMessageHistory
+from langchain_community.chat_message_histories.redis import RedisChatMessageHistory
 from dotenv import load_dotenv
 from database.database import redis_url
 from database.orm import execute_redis_command
 import redis.asyncio as redis
 import os
+
+import aioredis
+import asyncio
+import json
+from typing import List, Optional
+
+from langchain_core.chat_history import BaseChatMessageHistory
+from langchain_core.messages import BaseMessage, message_to_dict, messages_from_dict
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_openai import ChatOpenAI
+
+
+class AsyncRedisChatMessageHistory(BaseChatMessageHistory):
+
+    def __init__(
+        self,
+        session_id: str,
+        url: str = f"{redis_url}",
+        key_prefix: str = "message_store:",
+        ttl: Optional[int] = None,
+    ):
+        self.redis_client = aioredis.Redis.from_url(url)
+        self.session_id = session_id
+        self.key_prefix = key_prefix
+        self.ttl = ttl
+        self.loop = asyncio.get_event_loop()
+
+    @property
+    def key(self) -> str:
+        return self.key_prefix + self.session_id
+
+    @property
+    def messages(self):
+        return asyncio.run_coroutine_threadsafe(self.aget_messages(), self.loop).result()
+
+    async def aget_messages(self) -> List[BaseMessage]:  # type: ignore
+        _items = await self.redis_client.lrange(self.key, 0, -1)
+        items = [json.loads(m.decode("utf-8")) for m in _items[::-1]]
+        messages = messages_from_dict(items)
+        return messages
+
+    def add_message(self, message: BaseMessage) -> None:
+        asyncio.run_coroutine_threadsafe(self.aadd_message(message), self.loop)
+
+    async def aadd_message(self, message: BaseMessage) -> None:
+        await self.redis_client.lpush(self.key, json.dumps(message_to_dict(message)))
+        if self.ttl:
+            await self.redis_client.expire(self.key, self.ttl)
+
+    def clear(self):
+        asyncio.run_coroutine_threadsafe(self.aclear(), self.loop)
+
+    async def aclear(self) -> None:
+        await self.redis_client.delete(self.key)
+
+
+def get_session_history(session_id: str) -> BaseChatMessageHistory:
+    return AsyncRedisChatMessageHistory(session_id)
 
 # Функция последовательный смены задачи
 async def dynamic_task_change(chat_id, redis_pool, tasks, llm_output):
@@ -56,8 +115,8 @@ def summarize_messages(chain_input):
 
     return True
 
-def get_message_history(session_id: str) -> RedisChatMessageHistory:
-    return RedisChatMessageHistory(session_id, url=redis_url)
+#def get_message_history(session_id: str) -> RedisChatMessageHistory:
+#    return RedisChatMessageHistory(session_id, url=redis_url)
 
 # Главная функция
 async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat):
@@ -80,7 +139,7 @@ async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat):
 
     chain_with_message_history = RunnableWithMessageHistory(
             chain,
-            get_message_history,
+            get_session_history,
             input_messages_key="input",
             history_messages_key="chat_history"
         )
@@ -90,7 +149,7 @@ async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat):
 #        | chain_with_message_history
 #    )
     
-    response = chain_with_message_history.invoke(
+    response = await chain_with_message_history.ainvoke(
             {"input": f"{user_input}"},
             {"configurable": {"session_id": f"{chat_id}"}}
         ) 
