@@ -14,6 +14,11 @@ from redis.asyncio import ConnectionPool, Redis
 from database.config import redis_port, redis_host
 
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 # Функция последовательный смены задачи
 async def dynamic_task_change(chat_id, redis_pool, tasks, llm_output):
     
@@ -66,41 +71,55 @@ def get_message_history(session_id: str, url: str) -> BaseChatMessageHistory:
 
 # Главная функция
 async def psyho_chat(system_prompt, user_input, pool, chat_id, chat, redis_url):
-    # Выполняем асинхронный запрос HGET
-    task = await execute_redis_command(pool, "hget", "tasks", chat_id)
+    try:
+        
+        logger.info("Task extraction")
+        # Выполняем асинхронный запрос HGET
+        task = await execute_redis_command(pool, "hget", "tasks", chat_id)
 
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            (
-                "system",
-                f"{system_prompt}" + str(task),
-            ),
-            MessagesPlaceholder(variable_name="chat_history"),
-            ("human", "{input}"),
-        ]
-    )
+        logger.info("Task extracted: %s", task)
 
-    chain = prompt | chat
-
-
-    chain_with_message_history = RunnableWithMessageHistory(
-            chain,
-            lambda session_id: get_message_history(session_id, redis_url),
-            input_messages_key="input",
-            history_messages_key="chat_history"
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    f"{system_prompt}" + str(task),
+                ),
+                MessagesPlaceholder(variable_name="chat_history"),
+                ("human", "{input}"),
+            ]
         )
-    
-#    chain_with_summarization = (
-#        RunnablePassthrough.assign(messages_summarized=summarize_messages)
-#        | chain_with_message_history
-#    )
-    
-    response = await chain_with_message_history.ainvoke(
-            {"input": f"{user_input}"},
-            {"configurable": {"session_id": f"{chat_id}"}}
-        ) 
 
-    return response
+        chain = prompt | chat
+
+        logger.info("Chaining start: %s", chain)
+
+        chain_with_message_history = RunnableWithMessageHistory(
+                chain,
+                lambda session_id: get_message_history(session_id, redis_url),
+                input_messages_key="input",
+                history_messages_key="chat_history"
+            )
+        
+    #    chain_with_summarization = (
+    #        RunnablePassthrough.assign(messages_summarized=summarize_messages)
+    #        | chain_with_message_history
+    #    )
+        
+        logger.info("Starting ainvoke with input: %s", user_input)
+
+        response = await chain_with_message_history.ainvoke(
+                {"input": f"{user_input}"},
+                {"configurable": {"session_id": f"{chat_id}"}}
+            ) 
+        
+        logger.info("Received response: %s", response)
+
+        return response
+
+    except Exception as e:
+        logger.error("Error during ainvoke: %s", e)
+        raise e
 
 #ool = ConnectionPool(host=redis_host, port=redis_port, decode_responses=True)
 
