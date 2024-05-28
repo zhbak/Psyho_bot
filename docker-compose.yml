@@ -3,21 +3,17 @@ services:
   redis:
     image: redis/redis-stack-server:latest
     container_name: redis
+    command: redis-server --save 3600 1 --loglevel verbose
     expose:
       - "6379"
-    entrypoint: >
-      redis-server
-        --save 3600 1 
-        --loglevel verbose
+#    entrypoint: >
+#      redis-server
+#        --save 3600 1 
+#        --loglevel verbose
 #        --requirepass ${REDIS_PASSWORD}  
 #        --loadmodule /opt/redis-stack/lib/redisearch.so
     env_file:
       - stack.env
-
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
 
   database:
     image: postgres:15
