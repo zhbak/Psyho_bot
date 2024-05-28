@@ -22,7 +22,7 @@ async def main():
 # Запуск бота
 if __name__ == "__main__":
     logger.info("Bot started.")
-    orm.create_tables()
+    asyncio.run(orm.create_tables())
     setup_handlers(config.bot)
     while True:
         try:
