@@ -56,7 +56,7 @@ def summarize_messages(chain_input):
 
     return True
 
-def get_message_history(session_id: str) -> RedisChatMessageHistory:
+async def get_message_history(session_id: str) -> RedisChatMessageHistory:
     return RedisChatMessageHistory(session_id, url=redis_url)
 
 # Главная функция
@@ -80,15 +80,15 @@ async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat):
 
     chain_with_message_history = RunnableWithMessageHistory(
             chain,
-            get_message_history,
+            await get_message_history,
             input_messages_key="input",
             history_messages_key="chat_history"
         )
     
-    chain_with_summarization = (
-        RunnablePassthrough.assign(messages_summarized=summarize_messages)
-        | chain_with_message_history
-    )
+#    chain_with_summarization = (
+#        RunnablePassthrough.assign(messages_summarized=summarize_messages)
+#        | chain_with_message_history
+#    )
     
     response = await chain_with_message_history.ainvoke(
             {"input": f"{user_input}"},
