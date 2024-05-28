@@ -90,7 +90,7 @@ async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat):
 #        | chain_with_message_history
 #    )
     
-    response = await chain_with_message_history.ainvoke(
+    response = chain_with_message_history.invoke(
             {"input": f"{user_input}"},
             {"configurable": {"session_id": f"{chat_id}"}}
         ) 
