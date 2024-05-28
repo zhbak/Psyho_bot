@@ -2,7 +2,8 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from database import orm, database
 from bot_infrastucture import buttons, texts
 from psyai import prompts, psy_chat
-from langchain_community.chat_message_histories import RedisChatMessageHistory
+#from langchain_community.chat_message_histories import RedisChatMessageHistory
+from psyai.redis_chat import RedisChatMessageHistory
 from bot_infrastucture import config
 import random
 
@@ -42,7 +43,7 @@ def start_button_handler(bot):
                 await bot.send_message(chat_id=chat_id, text=texts.start_psy_chat_text)
                 await orm.execute_redis_command(database.pool, "hset", "tasks", chat_id, f"{prompts.tasks[0]}") # Установка задачи для system_prompt
                 await bot.send_message(chat_id, text="ок1", parse_mode="HTML")
-                #RedisChatMessageHistory(session_id=f"{chat_id}", url=f"{database.redis_url}")
+                RedisChatMessageHistory(session_id=f"{chat_id}", url=f"{database.redis_url}")
                 await bot.send_message(chat_id, text="ок2", parse_mode="HTML")
                 user_input = f"Привет! Меня зовут {call.message.chat.first_name}. Поприветствуй меня на русском 👋"
                 await bot.send_message(chat_id, text="ок2.5", parse_mode="HTML")
