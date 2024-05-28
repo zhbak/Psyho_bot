@@ -2,7 +2,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory, RunnablePassthrough
-from langchain_community.chat_message_histories.redis import RedisChatMessageHistory
+from psyai.redis_chat import RedisChatMessageHistory
 from dotenv import load_dotenv
 from database.database import redis_url
 from database.orm import execute_redis_command
@@ -57,7 +57,7 @@ def summarize_messages(chain_input):
     return True
 
 def get_message_history(session_id: str) -> RedisChatMessageHistory:
-    return RedisChatMessageHistory(session_id, url=redis_url)
+    return RedisChatMessageHistory(str(session_id), url=str(redis_url))
 
 # Главная функция
 async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat, task):
@@ -82,10 +82,10 @@ async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat, task)
             history_messages_key="chat_history"
         )
     
-    chain_with_summarization = (
-        RunnablePassthrough.assign(messages_summarized=summarize_messages)
-        | chain_with_message_history
-    )
+#    chain_with_summarization = (
+#        RunnablePassthrough.assign(messages_summarized=summarize_messages)
+#        | chain_with_message_history
+#    )
     
     response = await chain_with_message_history.ainvoke(
             {"input": f"{user_input}"},
