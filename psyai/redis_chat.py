@@ -12,12 +12,9 @@ from langchain_core.messages import (
 from database.database import pool
 #from langchain_community.utilities.redis import get_client
 
-from __future__ import annotations
-
 import logging
-import re
-from typing import TYPE_CHECKING, Any, List, Optional, Pattern
-from urllib.parse import urlparse
+from typing import TYPE_CHECKING, Any, List, Optional
+
 
 import numpy as np
 
