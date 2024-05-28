@@ -46,7 +46,7 @@ def start_button_handler(bot):
                 await bot.send_message(chat_id, text="ок2", parse_mode="HTML")
                 user_input = f"Привет! Меня зовут {call.message.chat.first_name}. Поприветствуй меня на русском 👋"
                 await bot.send_message(chat_id, text="ок2.5", parse_mode="HTML")
-                response = await psy_chat.psyho_chat(prompts.system_prompt, user_input, database.pool, chat_id, config.chat) # Ответ psychat на первый user_input
+                response = psy_chat.psyho_chat(prompts.system_prompt, user_input, database.pool, chat_id, config.chat) # Ответ psychat на первый user_input
                 await bot.send_message(chat_id, text="ок3", parse_mode="HTML")
                 await psy_chat.dynamic_task_change(chat_id, database.pool, prompts.tasks, response.content)
                 await bot.send_message(chat_id, text="ок4", parse_mode="HTML")
@@ -79,13 +79,13 @@ def psy_chat_handler(bot):
 
                 if len(chat_history.messages) == 10: 
                     await bot.send_message(chat_id, random.choice(texts.pause_phrases), parse_mode="HTML")
-                    response = await psy_chat.psyho_chat(system_prompt="Ты психолог. Подведи итоги сессии. Знай что следующим сообщением ты будешь прощаться с клиентом.", user_input=message.text, redis_pool=database.pool, chat_id=chat_id, chat=config.chat)
+                    response = psy_chat.psyho_chat(system_prompt="Ты психолог. Подведи итоги сессии. Знай что следующим сообщением ты будешь прощаться с клиентом.", user_input=message.text, redis_pool=database.pool, chat_id=chat_id, chat=config.chat)
                     await psy_chat.dynamic_task_change(chat_id, database.pool, prompts.tasks, response.content)
                     await bot.send_message(chat_id, text=response.content + "\n\nУ тебя осталось последнее сообщение в рамках сессии 😔", parse_mode="HTML")
 
                 elif len(chat_history.messages) >= 12: 
                     await bot.send_message(chat_id, random.choice(texts.pause_phrases), parse_mode="HTML")
-                    response = await psy_chat.psyho_chat(system_prompt="Ты психолог. Попращайся.", user_input="Попращайся со мной", redis_pool=database.pool, chat_id=chat_id, chat=config.chat)
+                    response = psy_chat.psyho_chat(system_prompt="Ты психолог. Попращайся.", user_input="Попращайся со мной", redis_pool=database.pool, chat_id=chat_id, chat=config.chat)
                     await bot.send_message(chat_id, text=response.content + "\n\nСессия закончилась.", parse_mode="HTML")
                     await orm.execute_redis_command(database.pool, "hdel", "tasks", "chat_id") 
                     await orm.execute_redis_command(database.pool, "delete", f"message_store:{chat_id}")            
@@ -102,7 +102,7 @@ def psy_chat_handler(bot):
 
                 else:
                     await bot.send_message(chat_id, random.choice(texts.pause_phrases), parse_mode="HTML")
-                    response = await psy_chat.psyho_chat(prompts.system_prompt, message.text, database.pool, chat_id, config.chat) 
+                    response = psy_chat.psyho_chat(prompts.system_prompt, message.text, database.pool, chat_id, config.chat) 
                     await psy_chat.dynamic_task_change(chat_id, database.pool, prompts.tasks, response.content)
                     await bot.send_message(chat_id, text=response.content, parse_mode="HTML")
 
