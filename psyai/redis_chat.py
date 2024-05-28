@@ -37,25 +37,28 @@ class RedisChatMessageHistory(BaseChatMessageHistory):
 
     @property
     def key(self) -> str:
-        """Construct the record key to use"""
         return self.key_prefix + self.session_id
 
+    @property
     def messages(self):
         return asyncio.run_coroutine_threadsafe(self.aget_messages(), self.loop).result()
 
-    async def aget_messages(self) -> List[BaseMessage]:
-        """Retrieve the messages from Redis"""
+    async def aget_messages(self) -> List[BaseMessage]:  # type: ignore
         _items = await self.redis_client.lrange(self.key, 0, -1)
-        items = [json.loads(m) for m in _items[::-1]]
+        items = [json.loads(m.decode("utf-8")) for m in _items[::-1]]
         messages = messages_from_dict(items)
         return messages
 
-    async def add_message(self, message: BaseMessage) -> None:
-        """Append the message to the record in Redis"""
+    def add_message(self, message: BaseMessage) -> None:
+        asyncio.run_coroutine_threadsafe(self.aadd_message(message), self.loop)
+
+    async def aadd_message(self, message: BaseMessage) -> None:
         await self.redis_client.lpush(self.key, json.dumps(message_to_dict(message)))
         if self.ttl:
             await self.redis_client.expire(self.key, self.ttl)
 
-    async def clear(self) -> None:
-        """Clear session memory from Redis"""
+    def clear(self):
+        asyncio.run_coroutine_threadsafe(self.aclear(), self.loop)
+
+    async def aclear(self) -> None:
         await self.redis_client.delete(self.key)
