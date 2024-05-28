@@ -2,7 +2,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory, RunnablePassthrough
-#from langchain_community.chat_message_histories import RedisChatMessageHistory
+#from langchain_community.chat_message_histories.redis import RedisChatMessageHistory
 from psyai.redis_chat import RedisChatMessageHistory
 from dotenv import load_dotenv
 from database.database import redis_url
@@ -81,9 +81,13 @@ async def psyho_chat(system_prompt, user_input, pool, chat_id, chat):
 
     chain = prompt | chat
 
+    async def async_get_message_history(session_id: str):
+        history = await get_message_history(session_id, pool)
+        return await history.get_messages()
+
     chain_with_message_history = RunnableWithMessageHistory(
             chain,
-            lambda session_id: get_message_history(session_id, pool),
+            async_get_message_history,
             input_messages_key="input",
             history_messages_key="chat_history"
         )
