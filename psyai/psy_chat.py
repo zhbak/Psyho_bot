@@ -2,7 +2,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory, RunnablePassthrough
-from psyai.redis_chat import RedisChatMessageHistory
+from langchain_community.chat_message_histories import RedisChatMessageHistory
 from dotenv import load_dotenv
 from database.database import redis_url
 from database.orm import execute_redis_command
