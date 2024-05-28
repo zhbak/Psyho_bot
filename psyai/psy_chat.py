@@ -92,7 +92,7 @@ async def psyho_chat(system_prompt, user_input, pool, chat_id, chat, redis_url):
 
         chain = prompt | chat
 
-        logger.info("Chaining formed: %s", chain)
+        logger.info("Chaining formed")
 
         chain_with_message_history = RunnableWithMessageHistory(
                 chain,
@@ -101,7 +101,7 @@ async def psyho_chat(system_prompt, user_input, pool, chat_id, chat, redis_url):
                 history_messages_key="chat_history"
             )
         
-        logger.info("Chain_with_message_history formed: %s", chain_with_message_history)
+        logger.info("Chain_with_message_history formed")
         
     #    chain_with_summarization = (
     #        RunnablePassthrough.assign(messages_summarized=summarize_messages)
@@ -110,7 +110,7 @@ async def psyho_chat(system_prompt, user_input, pool, chat_id, chat, redis_url):
         
         logger.info("Starting ainvoke with input: %s", user_input)
 
-        response = chain_with_message_history.invoke(
+        response = await chain_with_message_history.ainvoke(
                 {"input": f"{user_input}"},
                 config={"configurable": {"session_id": f"{chat_id}"}}
             ) 

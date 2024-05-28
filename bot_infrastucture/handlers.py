@@ -6,6 +6,9 @@ from psyai import prompts, psy_chat
 from psyai.redis_chat import RedisChatMessageHistory
 from bot_infrastucture import config
 import random
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -42,17 +45,14 @@ def start_button_handler(bot):
             if user_info.remaining_sessions_count > 0: # Если есть доступные сессии
                 await bot.send_message(chat_id=chat_id, text=texts.start_psy_chat_text)
                 await orm.execute_redis_command(database.pool, "hset", "tasks", chat_id, f"{prompts.tasks[0]}") # Установка задачи для system_prompt
-                await bot.send_message(chat_id, text="ок1", parse_mode="HTML")
+                logger.info("Задача установлена: %s", prompts.tasks[0])
                 #RedisChatMessageHistory(session_id=f"{chat_id}", pool = database.pool)
-                await bot.send_message(chat_id, text="ок2", parse_mode="HTML")
                 user_input = f"Привет! Меня зовут {call.message.chat.first_name}. Поприветствуй меня на русском 👋"
-                await bot.send_message(chat_id, text="ок2.5", parse_mode="HTML")
                 # Выполняем асинхронный запрос HGET
-                await bot.send_message(chat_id, text="ок2.6", parse_mode="HTML")
+                logger.info("Запрос на ответ")
                 response = await psy_chat.psyho_chat(prompts.system_prompt, user_input, database.pool, chat_id, config.chat, database.redis_url) # Ответ psychat на первый user_input
-                await bot.send_message(chat_id, text="ок3", parse_mode="HTML")
+                logger.info("Ответ на запрос получен: %s", response)
                 await psy_chat.dynamic_task_change(chat_id, database.pool, prompts.tasks, response.content)
-                await bot.send_message(chat_id, text="ок4", parse_mode="HTML")
                 await bot.send_message(chat_id, text=response.content, parse_mode="HTML")
 
             else:
