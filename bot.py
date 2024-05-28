@@ -17,16 +17,16 @@ def setup_handlers(bot):
 
 # Основная асинхронная функция
 async def main():
-    await orm.create_tables()
-    await config.bot.polling()
+    await config.bot.polling(non_stop=True)
 
 # Запуск бота
 if __name__ == "__main__":
     logger.info("Bot started.")
+    orm.create_tables()
     setup_handlers(config.bot)
     while True:
         try:
             asyncio.run(main())
         except Exception as e:
             logger.exception("Exception occurred: %s", e)
-            time.sleep(15)  # Пауза перед следующей попыткой
+            time.sleep(5)  # Пауза перед следующей попыткой
