@@ -40,8 +40,7 @@ class RedisChatMessageHistory(BaseChatMessageHistory):
         """Construct the record key to use"""
         return self.key_prefix + self.session_id
 
-    @property
-    async def messages(self) -> List[BaseMessage]:  # type: ignore
+    async def get_messages(self) -> List[BaseMessage]:
         """Retrieve the messages from Redis"""
         _items = await self.redis_client.lrange(self.key, 0, -1)
         items = [json.loads(m) for m in _items[::-1]]
