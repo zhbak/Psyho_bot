@@ -9,6 +9,9 @@ from database.database import redis_url
 from database.orm import execute_redis_command
 import redis.asyncio as redis
 import os
+from redis.asyncio import ConnectionPool, Redis
+from database.config import redis_port, redis_host
+
 
 # Функция последовательный смены задачи
 async def dynamic_task_change(chat_id, redis_pool, tasks, llm_output):
@@ -57,11 +60,13 @@ def summarize_messages(chain_input):
 
     return True
 
-def get_message_history(session_id: str) -> RedisChatMessageHistory:
-    return RedisChatMessageHistory(str(session_id), url=str(redis_url))
+async def get_message_history(session_id: str, pool: ConnectionPool) -> RedisChatMessageHistory:
+    return RedisChatMessageHistory(session_id, pool)
 
 # Главная функция
-async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat, task):
+async def psyho_chat(system_prompt, user_input, pool, chat_id, chat):
+    # Выполняем асинхронный запрос HGET
+    task = await execute_redis_command(pool, "hget", "tasks", chat_id)
 
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -94,7 +99,8 @@ async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat, task)
         ) 
 
     return response
-    
+
+pool = ConnectionPool(host=redis_host, port=redis_port, decode_responses=True)
 
 if __name__ == '__main__':
     

@@ -47,9 +47,8 @@ def start_button_handler(bot):
                 user_input = f"Привет! Меня зовут {call.message.chat.first_name}. Поприветствуй меня на русском 👋"
                 await bot.send_message(chat_id, text="ок2.5", parse_mode="HTML")
                 # Выполняем асинхронный запрос HGET
-                task = await orm.execute_redis_command(database.pool, "hget", "tasks", chat_id)
                 await bot.send_message(chat_id, text="ок2.6", parse_mode="HTML")
-                response = await psy_chat.psyho_chat(prompts.system_prompt, user_input, database.pool, chat_id, config.chat, task) # Ответ psychat на первый user_input
+                response = await psy_chat.psyho_chat(prompts.system_prompt, user_input, database.pool, chat_id, config.chat) # Ответ psychat на первый user_input
                 await bot.send_message(chat_id, text="ок3", parse_mode="HTML")
                 await psy_chat.dynamic_task_change(chat_id, database.pool, prompts.tasks, response.content)
                 await bot.send_message(chat_id, text="ок4", parse_mode="HTML")
