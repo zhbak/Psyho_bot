@@ -56,7 +56,7 @@ def summarize_messages(chain_input):
 
     return True
 
-async def get_message_history(session_id: str) -> RedisChatMessageHistory:
+def get_message_history(session_id: str) -> RedisChatMessageHistory:
     return RedisChatMessageHistory(session_id, url=redis_url)
 
 # Главная функция
