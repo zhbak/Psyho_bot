@@ -101,6 +101,8 @@ async def psyho_chat(system_prompt, user_input, pool, chat_id, chat):
             {"input": f"{user_input}"},
             {"configurable": {"session_id": f"{chat_id}"}}
         ) 
+    
+    history_messages = await async_get_message_history(chat_id)
 
     return response
 
