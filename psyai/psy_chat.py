@@ -2,7 +2,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory, RunnablePassthrough
-from langchain_community.chat_message_histories import RedisChatMessageHistory
+from langchain_community.chat_message_histories.redis import RedisChatMessageHistory
 from dotenv import load_dotenv
 from database.database import redis_url
 from database.orm import execute_redis_command
@@ -60,10 +60,10 @@ def get_message_history(session_id: str) -> RedisChatMessageHistory:
     return RedisChatMessageHistory(session_id, url=redis_url)
 
 # Главная функция
-def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat):
+async def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat):
     
     # Выполняем асинхронный запрос HGET
-    task = execute_redis_command(redis_pool, "hget", "tasks", chat_id)
+    task = await execute_redis_command(redis_pool, "hget", "tasks", chat_id)
 
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -90,7 +90,7 @@ def psyho_chat(system_prompt, user_input, redis_pool, chat_id, chat):
         | chain_with_message_history
     )
     
-    response = chain_with_message_history.invoke(
+    response = await chain_with_message_history.ainvoke(
             {"input": f"{user_input}"},
             {"configurable": {"session_id": f"{chat_id}"}}
         ) 
