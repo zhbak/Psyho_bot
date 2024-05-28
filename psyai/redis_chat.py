@@ -34,6 +34,7 @@ class RedisChatMessageHistory(BaseChatMessageHistory):
         self.session_id = session_id
         self.key_prefix = key_prefix
         self.ttl = ttl
+        self.loop = asyncio.get_event_loop()
 
     @property
     def key(self) -> str:
