@@ -8,7 +8,7 @@ services:
     entrypoint: >
       redis-server
         --save 3600 1 
-        --loglevel debug
+        --loglevel verbose
 #        --requirepass ${REDIS_PASSWORD}  
 #        --loadmodule /opt/redis-stack/lib/redisearch.so
     env_file:

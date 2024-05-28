@@ -43,7 +43,7 @@ def start_button_handler(bot):
                 await bot.send_message(chat_id=chat_id, text=texts.start_psy_chat_text)
                 await orm.execute_redis_command(database.pool, "hset", "tasks", chat_id, f"{prompts.tasks[0]}") # Установка задачи для system_prompt
                 await bot.send_message(chat_id, text="ок1", parse_mode="HTML")
-                RedisChatMessageHistory(session_id=f"{chat_id}", pool = database.pool)
+                #RedisChatMessageHistory(session_id=f"{chat_id}", pool = database.pool)
                 await bot.send_message(chat_id, text="ок2", parse_mode="HTML")
                 user_input = f"Привет! Меня зовут {call.message.chat.first_name}. Поприветствуй меня на русском 👋"
                 await bot.send_message(chat_id, text="ок2.5", parse_mode="HTML")
