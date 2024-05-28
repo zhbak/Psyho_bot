@@ -83,7 +83,7 @@ async def psyho_chat(system_prompt, user_input, pool, chat_id, chat):
 
     chain_with_message_history = RunnableWithMessageHistory(
             chain,
-            get_message_history,
+            get_message_history(pool),
             input_messages_key="input",
             history_messages_key="chat_history"
         )
