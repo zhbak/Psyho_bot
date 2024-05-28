@@ -1,43 +1,32 @@
-import asyncio, time
+import asyncio
+import time
+import logging
 from bot_infrastucture import handlers, config
 from database import orm
-import logging
 
-logging.basicConfig(level=logging.INFO)
+# Настройка логирования
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Состояния:
-# start - 0
-# psy_chat - 1
 
+# Инициализация обработчиков
+def setup_handlers(bot):
+    handlers.start_message(bot)
+    handlers.start_button_handler(bot)
+    handlers.psy_chat_handler(bot)
 
-    
-handlers.start_message(config.bot)
-handlers.start_button_handler(config.bot)
-handlers.psy_chat_handler(config.bot)
-
-
-
+# Основная асинхронная функция
 async def main():
     await orm.create_tables()
-    await config.bot.polling(none_stop=True, interval=0, timeout=20)
+    await config.bot.polling()
 
-"""
+# Запуск бота
 if __name__ == "__main__":
-    print('Bot started.')
-    try:
-        asyncio.run(main())
-    except Exception as e:
-        print(f"Exception occurred: {e}")
-"""
-
-
-
-if __name__ == "__main__":
-    print('Bot started.')
+    logger.info("Bot started.")
+    setup_handlers(config.bot)
     while True:
         try:
             asyncio.run(main())
         except Exception as e:
-            print(f"Exception occurred: {e}")
+            logger.exception("Exception occurred: %s", e)
             time.sleep(15)  # Пауза перед следующей попыткой
