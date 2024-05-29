@@ -35,6 +35,7 @@ def start_button_handler(bot):
         chat_id = call.message.chat.id
         if call.data == 'pushed_start_psychat_btn':
             user_state = await orm.execute_redis_command(database.pool, "hget", "status", call.message.chat.id) 
+            logger.info("User state установлена: %s", user_state)
             user_info = await orm.user_check(call.message.chat.id, call.message.date)
             if user_state == "1":
                 await orm.change_user_session_count(user_info, call.message.date) # Уменьшение количества сессий если клиент до этого был в psy_chat
