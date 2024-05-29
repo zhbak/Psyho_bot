@@ -65,8 +65,8 @@ def summarize_messages(chain_input):
 
     return True
 
-def get_message_history(session_id: str, url: str) -> BaseChatMessageHistory:
-    return RedisChatMessageHistory(session_id, url)
+#def get_message_history(session_id: str, url: str) -> BaseChatMessageHistory:
+#    return RedisChatMessageHistory(session_id, url)
 
 # Главная функция
 async def psyho_chat(system_prompt, user_input, pool, chat_id, chat, redis_url):
@@ -95,7 +95,7 @@ async def psyho_chat(system_prompt, user_input, pool, chat_id, chat, redis_url):
 
         chain_with_message_history = RunnableWithMessageHistory(
                 chain,
-                lambda session_id: get_message_history(session_id, redis_url),
+                lambda session_id: RedisChatMessageHistory(str(chat_id), redis_url),
                 input_messages_key="input",
                 history_messages_key="chat_history"
             )
@@ -108,6 +108,8 @@ async def psyho_chat(system_prompt, user_input, pool, chat_id, chat, redis_url):
     #    )
         
         logger.info("Starting ainvoke with input: %s", user_input)
+        logger.info("Redis url: %s", redis_url)
+        logger.info("Session_id: %s", chat_id)
 
         response = await chain_with_message_history.ainvoke(
                 {"input": f"{user_input}"},
