@@ -111,7 +111,7 @@ async def psyho_chat(system_prompt, user_input, pool, chat_id, chat, redis_url):
         logger.info("Redis url: %s", redis_url)
         logger.info("Session_id: %s", chat_id)
 
-        response = await chain_with_message_history.ainvoke(
+        response = chain_with_message_history.invoke(
                 {"input": f"{user_input}"},
                 config={"configurable": {"session_id": f"{chat_id}"}}
             ) 
