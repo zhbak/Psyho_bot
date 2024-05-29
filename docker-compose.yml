@@ -3,7 +3,7 @@ services:
   redis:
     image: redis/redis-stack-server:latest
     container_name: redis
-    command: redis-server --save 3600 1 --loglevel verbose
+    #command: redis-server --save 3600 1 --loglevel verbose
     expose:
       - "6379"
 #    entrypoint: >
