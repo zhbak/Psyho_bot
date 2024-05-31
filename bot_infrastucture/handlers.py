@@ -2,8 +2,8 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from database import orm, database
 from bot_infrastucture import buttons, texts
 from psyai import prompts, psy_chat
-#from langchain_community.chat_message_histories import RedisChatMessageHistory
-from psyai.redis_chat import RedisChatMessageHistory
+from langchain_community.chat_message_histories import RedisChatMessageHistory
+#from psyai.redis_chat import RedisChatMessageHistory
 from bot_infrastucture import config
 import random
 import logging
@@ -33,6 +33,7 @@ def start_button_handler(bot):
     @bot.callback_query_handler(func=lambda call: True)
     async def query_handler(call):
         chat_id = call.message.chat.id
+        await bot.delete_message(chat_id=chat_id, message_id=call.message.message_id)
         if call.data == 'pushed_start_psychat_btn':
             user_state = await orm.execute_redis_command(database.pool, "hget", "status", call.message.chat.id) 
             logger.info("User state установлена: %s", user_state)
@@ -47,14 +48,14 @@ def start_button_handler(bot):
                 await bot.send_message(chat_id=chat_id, text=texts.start_psy_chat_text)
                 await orm.execute_redis_command(database.pool, "hset", "tasks", chat_id, f"{prompts.tasks[0]}") # Установка задачи для system_prompt
                 logger.info("Задача установлена: %s", prompts.tasks[0])
-                #RedisChatMessageHistory(session_id=f"{chat_id}", pool = database.pool)
+                #RedisChatMessageHistory(session_id=f"{chat_id}", url = database.redis_url)
                 user_input = f"Привет! Меня зовут {call.message.chat.first_name}. Поприветствуй меня на русском 👋"
                 # Выполняем асинхронный запрос HGET
                 logger.info("Запрос на ответ")
                 response = await psy_chat.psyho_chat(prompts.system_prompt, user_input, database.pool, chat_id, config.chat, database.redis_url) # Ответ psychat на первый user_input
-                logger.info("Ответ на запрос получен: %s", response)
-                await psy_chat.dynamic_task_change(chat_id, database.pool, prompts.tasks, response.content)
                 await bot.send_message(chat_id, text=response.content, parse_mode="HTML")
+                logger.info("Ответ на запрос получен")
+                await psy_chat.dynamic_task_change(chat_id, database.pool, prompts.tasks, response.content)
 
             else:
                 markup = InlineKeyboardMarkup()
@@ -74,13 +75,16 @@ def psy_chat_handler(bot):
         chat_id = message.chat.id
         user_status = await orm.execute_redis_command(database.pool, "hget", "status", chat_id)
         if user_status == "1":
+            logger.info("Статус равен 1: %s", user_status)
             user_info = await orm.get_user_data(chat_id)
             
+            logger.info("Оставшееся количество сессий: %s", user_info.remaining_sessions_count)
             if user_info.remaining_sessions_count > 0:
                 chat_history = RedisChatMessageHistory(session_id=f"{chat_id}", url=f"{database.redis_url}")
                 stored_messages = chat_history.messages
                 last_message = stored_messages[-2]
 
+                logger.info("Кол-во сообщений: %s",len(chat_history.messages))
                 if len(chat_history.messages) == 10: 
                     await bot.send_message(chat_id, random.choice(texts.pause_phrases), parse_mode="HTML")
                     response = await psy_chat.psyho_chat(system_prompt="Ты психолог. Подведи итоги сессии. Знай что следующим сообщением ты будешь прощаться с клиентом.", user_input=message.text, redis_pool=database.pool, chat_id=chat_id, chat=config.chat, redis_url=database.redis_url)
@@ -106,9 +110,14 @@ def psy_chat_handler(bot):
 
                 else:
                     await bot.send_message(chat_id, random.choice(texts.pause_phrases), parse_mode="HTML")
-                    response = await psy_chat.psyho_chat(prompts.system_prompt, message.text, database.pool, chat_id, config.chat, redis_url=database.redis_url) 
+                    response = await psy_chat.psyho_chat(prompts.system_prompt, message.text, database.pool, chat_id, config.chat, database.redis_url)
                     await psy_chat.dynamic_task_change(chat_id, database.pool, prompts.tasks, response.content)
                     await bot.send_message(chat_id, text=response.content, parse_mode="HTML")
+            else:
+               markup = InlineKeyboardMarkup()
+               start_pay_btn = InlineKeyboardButton("💳", callback_data="pushed_start_pay_btn")
+               markup = markup.add(start_pay_btn)
+               await bot.send_message(chat_id, text="Твой лимит сессий исссяк.\n\n Чтобы купить сессии нажми 💳", reply_markup=markup)
 
         else:
             await bot.send_message(chat_id=chat_id, text=f"Пока не знаю как ответить 👾", parse_mode="HTML")

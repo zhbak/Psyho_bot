@@ -1,6 +1,7 @@
 from redis.asyncio import Redis
 from database.database import async_engine, async_session_factory
 from database.models import PsyUsersTable, Base
+import socket
 
 
 #_______redis_________
@@ -21,6 +22,12 @@ async def execute_redis_command(redis_pool, command: str, *args, **kwargs):
             return result
         except AttributeError:
             print(f"Redis does not support '{command}' method.")
+            return None
+        except ConnectionError as e:
+            print(f"Connection error: {e}")
+            return "ConnectionError"
+        except socket.error as e:
+            print(f"Socket error: {e}")
             return None
         except Exception as e:
             print(f"Error executing Redis command '{command}': {e}")
