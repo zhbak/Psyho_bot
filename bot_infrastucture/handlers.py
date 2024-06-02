@@ -53,7 +53,7 @@ def start_button_handler(bot):
                 # Выполняем асинхронный запрос HGET
                 logger.info("Запрос на ответ")
                 response = await psy_chat.psyho_chat(prompts.system_prompt, user_input, database.pool, chat_id, config.chat, database.redis_url) # Ответ psychat на первый user_input
-                await bot.send_message(chat_id, text=response.content, parse_mode="HTML")
+                await bot.send_message(chat_id, text=response.content, parse_mode="MarkdownV2")
                 logger.info("Ответ на запрос получен")
                 await psy_chat.dynamic_task_change(chat_id, database.pool, prompts.tasks, response.content)
 
@@ -64,7 +64,7 @@ def start_button_handler(bot):
                 await bot.send_message(chat_id, text="Твой лимит сессий исссяк.\n\n Чтобы купить сессии нажми 💳", reply_markup=markup)
                      
         elif call.data == 'pushed_start_pay_btn':
-            await bot.send_message(chat_id=call.message.chat.id, text="Эта услуга пока не доступна 🔜", parse_mode="HTML")
+            await bot.send_message(chat_id=call.message.chat.id, text="Эта услуга пока не доступна 🔜", parse_mode="MarkdownV2")
         await bot.answer_callback_query(callback_query_id=call.id) 
 
 
@@ -86,18 +86,18 @@ def psy_chat_handler(bot):
 
                 logger.info("Кол-во сообщений: %s",len(chat_history.messages))
                 if len(chat_history.messages) == 12: 
-                    waiting_message = await bot.send_message(chat_id, random.choice(texts.pause_phrases), parse_mode="HTML")
+                    waiting_message = await bot.send_message(chat_id, random.choice(texts.pause_phrases), parse_mode="MarkdownV2")
                     await  orm.execute_redis_command(database.pool, "hset", "tasks", chat_id, f"{prompts.tasks[3]}")
                     response = await psy_chat.psyho_chat(system_prompt=prompts.system_prompt, user_input=message.text, pool=database.pool, chat_id=chat_id, chat=config.chat, redis_url=database.redis_url)
-                    await bot.send_message(chat_id, text=response.content + "\n\nУ тебя осталось последнее сообщение в рамках сессии 😔", parse_mode="HTML")
+                    await bot.send_message(chat_id, text=response.content + "\n\nУ тебя осталось последнее сообщение в рамках сессии 😔", parse_mode="MarkdownV2")
                     await bot.delete_message(chat_id=chat_id, message_id=waiting_message.message_id)
                     await psy_chat.dynamic_task_change(chat_id, database.pool, prompts.tasks, response.content)
 
                 elif len(chat_history.messages) >= 14: 
-                    waiting_message = await bot.send_message(chat_id, random.choice(texts.pause_phrases), parse_mode="HTML")
+                    waiting_message = await bot.send_message(chat_id, random.choice(texts.pause_phrases), parse_mode="MarkdownV2")
                     await  orm.execute_redis_command(database.pool, "hset", "tasks", chat_id, f"{prompts.tasks[4]}")
                     response = await psy_chat.psyho_chat(system_prompt=prompts.system_prompt, user_input="Попращайся со мной", pool=database.pool, chat_id=chat_id, chat=config.chat, redis_url=database.redis_url)
-                    await bot.send_message(chat_id, text=response.content + "\n\nСессия закончилась.\\nПерейди в главное меню или нажми /start.", parse_mode="HTML")
+                    await bot.send_message(chat_id, text=response.content + "\n\nСессия закончилась.\\nПерейди в главное меню или нажми /start.", parse_mode="MarkdownV2")
                     await bot.delete_message(chat_id=chat_id, message_id=waiting_message.message_id)
                     await orm.execute_redis_command(database.pool, "hdel", "tasks", "chat_id") 
                     await orm.execute_redis_command(database.pool, "delete", f"message_store:{chat_id}")            
@@ -108,14 +108,14 @@ def psy_chat_handler(bot):
                 #     await bot.send_message(chat_id, text=response.content)
 
                 elif "До следующей сессии!" in last_message:
-                    await bot.send_message(chat_id, text="Сессия закончилась.", parse_mode="HTML")
+                    await bot.send_message(chat_id, text="Сессия закончилась.", parse_mode="MarkdownV2")
                     await orm.execute_redis_command(database.pool, "hdel", "tasks", chat_id) 
                     await orm.execute_redis_command(database.pool, "delete", f"message_store:{chat_id}")    
 
                 else:
-                    waiting_message = await bot.send_message(chat_id, random.choice(texts.pause_phrases), parse_mode="HTML")
+                    waiting_message = await bot.send_message(chat_id, random.choice(texts.pause_phrases), parse_mode="MarkdownV2")
                     response = await psy_chat.psyho_chat(prompts.system_prompt, message.text, database.pool, chat_id, config.chat, database.redis_url)
-                    await bot.send_message(chat_id, text=response.content, parse_mode="HTML")
+                    await bot.send_message(chat_id, text=response.content, parse_mode="MarkdownV2")
                     await bot.delete_message(chat_id=chat_id, message_id=waiting_message.message_id)
                     await psy_chat.dynamic_task_change(chat_id, database.pool, prompts.tasks, response.content)
                     
