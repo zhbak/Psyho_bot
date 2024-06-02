@@ -61,7 +61,7 @@ def start_button_handler(bot):
                 markup = InlineKeyboardMarkup()
                 start_pay_btn = InlineKeyboardButton("💳", callback_data="pushed_start_pay_btn")
                 markup = markup.add(start_pay_btn)
-                await bot.send_message(chat_id, text="Твой лимит сессий исссяк.\n\n Чтобы купить сессии нажми 💳", reply_markup=markup)
+                await bot.send_message(chat_id, text="Твой лимит сессий исссяк.\n\nЧтобы купить сессии нажми 💳", reply_markup=markup)
                      
         elif call.data == 'pushed_start_pay_btn':
             await bot.send_message(chat_id=call.message.chat.id, text="Эта услуга пока не доступна 🔜", parse_mode="HTML")
@@ -97,7 +97,7 @@ def psy_chat_handler(bot):
                     waiting_message = await bot.send_message(chat_id, random.choice(texts.pause_phrases), parse_mode="HTML")
                     await  orm.execute_redis_command(database.pool, "hset", "tasks", chat_id, f"{prompts.tasks[4]}")
                     response = await psy_chat.psyho_chat(system_prompt=prompts.system_prompt, user_input="Попращайся со мной", pool=database.pool, chat_id=chat_id, chat=config.chat, redis_url=database.redis_url)
-                    await bot.send_message(chat_id, text=response.content + "\n\nСессия закончилась.\\nПерейди в главное меню или нажми /start.", parse_mode="HTML")
+                    await bot.send_message(chat_id, text=response.content + "\n\nСессия закончилась.\n\nПерейди в главное меню или нажми /start.", parse_mode="HTML")
                     await bot.delete_message(chat_id=chat_id, message_id=waiting_message.message_id)
                     await orm.execute_redis_command(database.pool, "hdel", "tasks", "chat_id") 
                     await orm.execute_redis_command(database.pool, "delete", f"message_store:{chat_id}")            
