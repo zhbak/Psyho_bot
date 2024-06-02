@@ -20,7 +20,7 @@ Current task:
 tasks = (
     "Conduct a conversation in a casual style aimed at clarifying and defining the main problem the client seeks help with.\
     Ask the client about their expectations for the session and the goals they wish to achieve. Use active listening and\
-    reflection to ensure understanding and agree on the direction for the session. Share a one short story related to the client's issue.\
+    reflection to ensure understanding and agree on the direction for the session. Share a one long story related to the client's issue.\
     If the task is achieved, state it in a veiled manner, but literally: 'давай перейдём к основной части сессии'",
     "Apply therapeutic techniques and methods for in-depth work on the client's issue. This may include: dialogue, situation analysis,\
     working with emotions, using cognitive-behavioral tasks, or exploring internal conflicts. Remain attentive to the client's reaction and\
