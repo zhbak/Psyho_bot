@@ -3,7 +3,6 @@ import asyncio
 import logging
 from bot_infrastucture import handlers, config
 from database import orm
-from telebot import apihelper
 
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
@@ -16,9 +15,8 @@ def setup_handlers(bot):
     handlers.psy_chat_handler(bot)
 
 async def start_bot():
-    apihelper.SESSION_TIMEOUT = 60
     setup_handlers(config.bot)
-    await config.bot.polling(non_stop=True)
+    await config.bot.polling(non_stop=True, request_timeout=60)
 
 async def main():
     await orm.create_tables()
