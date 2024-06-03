@@ -18,7 +18,7 @@ async def start_bot():
     setup_handlers(config.bot)
     while True:
         try:
-            await config.bot.polling(non_stop=True)
+            await config.bot.infinity_polling()
         except Exception as e:
             logger.exception("Exception occurred: %s", e)
             await asyncio.sleep(1)  # Пауза перед следующей попыткой
