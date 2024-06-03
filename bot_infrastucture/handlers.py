@@ -125,6 +125,6 @@ def psy_chat_handler(bot):
                start_pay_btn = InlineKeyboardButton("💳", callback_data="pushed_start_pay_btn")
                markup = markup.add(start_pay_btn)
                await bot.send_message(chat_id, text="Твой лимит сессий исссяк.\n\n Чтобы купить сессии нажми 💳", reply_markup=markup)
-
+            
         else:
             await bot.send_message(chat_id=chat_id, text=f"Пока не знаю как ответить 👾\n\nПерейди в главное меню /start или напиши @zhbakov.", parse_mode="HTML")
