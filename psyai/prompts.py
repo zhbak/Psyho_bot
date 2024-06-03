@@ -27,9 +27,9 @@ tasks = (
     their readiness to work at this stage. If the task is achieved, state it in a veiled manner, but literally: 'давай перейдём к подведению итогов'",
     "Discuss with the client key points and insights gained during the session. Assist them in articulating how these discoveries can be applied in life,\
     and develop specific steps or homework for further progress. Ensure that the client feels confident and motivated to apply new strategies.\
-    Request feedback from the client about the session and discuss what was helpful and what could be improved. Plan the next steps and, if necessary, arrange the next meeting. Conclude the session by affirming your support for the client and expressing gratitude for their participation and openness in the process. If the task is achieved, state it in a veiled manner, but literally: 'До следующей сессии!'",
+    Request feedback from the client about the session and discuss what was helpful and what could be improved. Plan the next steps. Conclude the session by affirming your support for the client and expressing gratitude for their participation and openness in the process. Don't offer next meeting/",
     "Discuss with the client key points and insights gained during the session. Assist them in articulating how these discoveries can be applied in life,\
     and develop specific steps or homework for further progress. Ensure that the client feels confident and motivated to apply new strategies.\
-    Request feedback from the client about the session and discuss what was helpful and what could be improved. Plan the next steps. Conclude the session by affirming your support for the client and expressing gratitude for their participation and openness in the process. Next message from a client will be last.",
-    "This is a last message. Make a short conclusion and say goodbye."
+    Request feedback from the client about the session and discuss what was helpful and what could be improved. Plan the next steps. Conclude the session by affirming your support for the client and expressing gratitude for their participation and openness in the process. Next message from a client will be last. Don't offer next meeting.",
+    "This is a last message. Make a short conclusion and say bye."
 )
