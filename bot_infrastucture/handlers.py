@@ -97,7 +97,7 @@ def psy_chat_handler(bot):
                 elif message_count >= 14: 
                     waiting_message = await bot.send_message(chat_id, random.choice(texts.pause_phrases), parse_mode="HTML")
                     await  orm.execute_redis_command(database.pool, "hset", "tasks", chat_id, f"{prompts.tasks[4]}")
-                    response = await psy_chat.psyho_chat(system_prompt=prompts.system_prompt, user_input="Попращайся со мной", pool=database.pool, chat_id=chat_id, chat=config.chat, redis_url=database.redis_url)
+                    response = await psy_chat.psyho_chat(system_prompt=prompts.system_prompt, user_input=message.text, pool=database.pool, chat_id=chat_id, chat=config.chat, redis_url=database.redis_url)
                     await bot.send_message(chat_id, text=response.content + "\n\nСессия закончилась.\n\nПерейди в главное меню или нажми /start.", parse_mode="HTML")
                     await bot.delete_message(chat_id=chat_id, message_id=waiting_message.message_id)
                     await orm.execute_redis_command(database.pool, "hdel", "tasks", "chat_id") 
