@@ -127,4 +127,4 @@ def psy_chat_handler(bot):
                await bot.send_message(chat_id, text="Твой лимит сессий исссяк.\n\n Чтобы купить сессии нажми 💳", reply_markup=markup)
 
         else:
-            await bot.send_message(chat_id=chat_id, text=f"Пока не знаю как ответить 👾", parse_mode="HTML")
+            await bot.send_message(chat_id=chat_id, text=f"Пока не знаю как ответить 👾\n\nПерейди в главное меню /start или напиши @zhbakov.", parse_mode="HTML")
