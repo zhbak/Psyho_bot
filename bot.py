@@ -19,10 +19,9 @@ async def start_bot():
     while True:
         try:
             await config.bot.polling(non_stop=True)
-            config.bot.polling()
         except Exception as e:
             logger.exception("Exception occurred: %s", e)
-            await asyncio.sleep(5)  # Пауза перед следующей попыткой
+            await asyncio.sleep(1)  # Пауза перед следующей попыткой
 
 async def main():
     await orm.create_tables()
@@ -32,7 +31,7 @@ async def main():
             await start_bot()
         except Exception as e:
             logger.exception("Exception occurred: %s", e)
-            await asyncio.sleep(5)  # Пауза перед следующей попыткой
+            await asyncio.sleep(1)  # Пауза перед следующей попыткой
 
 # Запуск бота
 if __name__ == "__main__":
