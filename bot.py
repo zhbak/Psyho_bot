@@ -3,6 +3,8 @@ import asyncio
 import logging
 from bot_infrastucture import handlers, config
 from database import orm
+#from telebot import asyncio_helper
+#asyncio_helper.proxy = 'http://proxy.server:3128'
 
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
@@ -16,8 +18,7 @@ def setup_handlers(bot):
 
 async def start_bot():
     setup_handlers(config.bot)
-    await config.bot.polling(non_stop=True, timeout= 1000, request_timeout=1000)
-    config.bot.polling()
+    await config.bot.infinity_polling(timeout=50, request_timeout=200)
 
 async def main():
     await orm.create_tables()
