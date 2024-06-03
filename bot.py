@@ -16,7 +16,7 @@ def setup_handlers(bot):
 
 async def start_bot():
     setup_handlers(config.bot)
-    await config.bot.infinity_polling(timeout=50, request_timeout=50, long_polling_timeout=10)
+    await config.bot.infinity_polling()
 
 async def main():
     await orm.create_tables()
