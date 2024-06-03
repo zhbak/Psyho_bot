@@ -82,10 +82,11 @@ def psy_chat_handler(bot):
             if user_info.remaining_sessions_count > 0:
                 chat_history = RedisChatMessageHistory(session_id=f"{chat_id}", url=f"{database.redis_url}")
                 stored_messages = chat_history.messages
+                message_count = len(stored_messages)
                 last_message = stored_messages[-2]
 
-                logger.info("Кол-во сообщений: %s",len(chat_history.messages))
-                if len(chat_history.messages) == 12: 
+                logger.info("Кол-во сообщений: %s", message_count)
+                if message_count == 12: 
                     waiting_message = await bot.send_message(chat_id, random.choice(texts.pause_phrases), parse_mode="HTML")
                     await  orm.execute_redis_command(database.pool, "hset", "tasks", chat_id, f"{prompts.tasks[3]}")
                     response = await psy_chat.psyho_chat(system_prompt=prompts.system_prompt, user_input=message.text, pool=database.pool, chat_id=chat_id, chat=config.chat, redis_url=database.redis_url)
@@ -93,7 +94,7 @@ def psy_chat_handler(bot):
                     await bot.delete_message(chat_id=chat_id, message_id=waiting_message.message_id)
                     await psy_chat.dynamic_task_change(chat_id, database.pool, prompts.tasks, response.content)
 
-                elif len(chat_history.messages) >= 14: 
+                elif message_count >= 14: 
                     waiting_message = await bot.send_message(chat_id, random.choice(texts.pause_phrases), parse_mode="HTML")
                     await  orm.execute_redis_command(database.pool, "hset", "tasks", chat_id, f"{prompts.tasks[4]}")
                     response = await psy_chat.psyho_chat(system_prompt=prompts.system_prompt, user_input="Попращайся со мной", pool=database.pool, chat_id=chat_id, chat=config.chat, redis_url=database.redis_url)
@@ -108,7 +109,7 @@ def psy_chat_handler(bot):
                 #     await bot.send_message(chat_id, text=response.content)
 
                 elif "До следующей сессии!" in last_message:
-                    await bot.send_message(chat_id, text="Сессия закончилась.", parse_mode="HTML")
+                    await bot.send_message(chat_id, text="Сессия закончилась.\n\nПерейди в главное меню или нажми /start.", parse_mode="HTML")
                     await orm.execute_redis_command(database.pool, "hdel", "tasks", chat_id) 
                     await orm.execute_redis_command(database.pool, "delete", f"message_store:{chat_id}")    
 
