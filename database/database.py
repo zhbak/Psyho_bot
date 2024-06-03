@@ -11,8 +11,8 @@ pool = ConnectionPool(
     db=0, 
     decode_responses=True, 
     max_connections=100,
-    socket_connect_timeout=30,  # Таймаут для установления соединения в секундах
-    socket_timeout=30) # Таймаут для выполнения команды и получения ответа в секундах
+    socket_connect_timeout=60,  # Таймаут для установления соединения в секундах
+    socket_timeout=60) # Таймаут для выполнения команды и получения ответа в секундах
 
 #pool = ConnectionPool.from_url(f"redis://{redis_host}:{redis_port}")
 redis_url = f"redis://{redis_host}:{redis_port}"
